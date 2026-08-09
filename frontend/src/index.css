@@ -1,0 +1,17 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* TipTap editor base styles */
+.ProseMirror {
+  min-height: 320px;
+  outline: none;
+}
+
+.ProseMirror p {
+  margin: 0.5em 0;
+}
+
+.ProseMirror:focus {
+  outline: none;
+}

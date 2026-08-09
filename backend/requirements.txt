@@ -1,0 +1,15 @@
+fastapi>=0.115.6
+uvicorn[standard]>=0.32.1
+python-multipart>=0.0.20
+pydantic>=2.12.0
+pydantic-settings>=2.7.0
+python-dotenv>=1.0.1
+pillow>=11.0.0
+pytesseract>=0.3.13
+opencv-python-headless>=4.10.0.84
+easyocr>=1.7.2
+python-docx>=1.1.2
+numpy>=2.4.0
+# Optional paid providers — install when enabling feature flags
+google-cloud-vision==3.8.1
+openai==1.57.2
