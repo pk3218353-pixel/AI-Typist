@@ -38,7 +38,7 @@ _LANG_MAP = {
 class EasyOCRProvider(OCRProvider):
     """EasyOCR — free, open-source fallback engine."""
 
-    _reader_cache: dict[str, easyocr.Reader] = {}
+    _reader_cache: dict = {}
 
     def _map_languages(self, languages: list[str]) -> list[str]:
         mapped: list[str] = []
