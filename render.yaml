@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: ai-typist-backend
+    runtime: docker
+    dockerContext: backend
+    dockerfilePath: Dockerfile
+    plan: free
+    envVars:
+      - key: OCR_CONFIDENCE_THRESHOLD
+        value: "0.75"
+      - key: OCR_PRIMARY_LANG
+        value: "hin+eng"
+      - key: CORS_ORIGINS
+        value: "http://localhost:5173"
+      - key: PORT
+        value: "8000"
