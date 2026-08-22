@@ -5,7 +5,6 @@ Slower than Tesseract; downloads language models on first use.
 """
 import io
 
-import easyocr
 import numpy as np
 from PIL import Image
 
@@ -49,7 +48,8 @@ class EasyOCRProvider(OCRProvider):
                 mapped.append(code)
         return mapped or ["en", "hi"]
 
-    def _reader(self, languages: list[str]) -> easyocr.Reader:
+    def _reader(self, languages: list[str]):
+        import easyocr
         mapped = self._map_languages(languages)
         key = ",".join(sorted(mapped))
         if key not in self._reader_cache:
