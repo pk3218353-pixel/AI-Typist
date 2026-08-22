@@ -3,7 +3,7 @@ services:
     name: ai-typist-backend
     runtime: docker
     dockerContext: backend
-    dockerfilePath: Dockerfile
+    dockerfilePath: backend/Dockerfile
     plan: free
     envVars:
       - key: OCR_CONFIDENCE_THRESHOLD
