@@ -108,12 +108,12 @@ export default function OcrPage() {
                   </span>
                 )}
               </div>
-              <div className="relative flex justify-center items-center bg-slate-100/50 rounded-2xl overflow-hidden mt-3 max-h-[500px] border border-slate-100">
+              <div className="relative flex justify-center items-center bg-slate-100/50 rounded-2xl overflow-hidden mt-3 max-h-[300px] md:max-h-[500px] border border-slate-100">
                 {imageUrl && (
                   <img
                     src={imageUrl}
                     alt="Original Uploaded Reference"
-                    className="max-h-[500px] w-full object-contain rounded-2xl select-none"
+                    className="max-h-[300px] md:max-h-[500px] w-full object-contain rounded-2xl select-none"
                   />
                 )}
               </div>
