@@ -4,6 +4,7 @@ export default {
   theme: {
     extend: {
       fontFamily: {
+        sans: ['Outfit', 'Plus Jakarta Sans', 'Inter', 'sans-serif'],
         mangal: ['Mangal', 'sans-serif'],
         'noto-devanagari': ['"Noto Sans Devanagari"', 'sans-serif'],
         'lohit-devanagari': ['"Lohit Devanagari"', 'sans-serif'],

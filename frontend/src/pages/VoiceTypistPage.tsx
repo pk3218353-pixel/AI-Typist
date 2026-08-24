@@ -55,12 +55,11 @@ export default function VoiceTypistPage() {
   }, []);
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-slate-900">Voice Typist</h1>
-        <p className="text-sm text-slate-600">
-          Live transcription via Web Speech API (free). Click anywhere in the editor to type
-          manually while speaking.
+    <div className="space-y-8">
+      <div className="border-b border-slate-100 pb-4">
+        <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">Voice Typist</h1>
+        <p className="text-sm text-slate-500 font-semibold mt-1">
+          Dictate documents live with real-time speech transcription in Hindi, English, and regional languages.
         </p>
       </div>
 
@@ -76,20 +75,24 @@ export default function VoiceTypistPage() {
       />
 
       {exportError && (
-        <div className="rounded-lg bg-red-50 p-3 text-sm text-red-700">{exportError}</div>
+        <div className="rounded-2xl bg-red-50 p-4 border border-red-100 text-sm font-bold text-red-700 max-w-xl mx-auto shadow-sm">
+          ⚠️ {exportError}
+        </div>
       )}
 
-      <RichTextEditor
-        onEditorReady={(ed) => {
-          editorRef.current = ed;
-        }}
-        onFontFamilyChange={(f) => {
-          fontFamilyRef.current = f;
-        }}
-        onExport={handleExport}
-        exportLabel={exporting ? 'Exporting…' : 'Download .docx'}
-        showUncertainPanel={false}
-      />
+      <div className="max-w-4xl mx-auto">
+        <RichTextEditor
+          onEditorReady={(ed) => {
+            editorRef.current = ed;
+          }}
+          onFontFamilyChange={(f) => {
+            fontFamilyRef.current = f;
+          }}
+          onExport={handleExport}
+          exportLabel={exporting ? 'Exporting…' : 'Download .docx'}
+          showUncertainPanel={false}
+        />
+      </div>
     </div>
   );
 }
