@@ -140,6 +140,16 @@ export default function RichTextEditor({
     [editor],
   );
 
+  const stats = useMemo(() => {
+    if (!editor) return { words: 0, characters: 0, readTime: 0 };
+    const text = editor.getText();
+    const cleanText = text.trim();
+    const words = cleanText ? cleanText.split(/\s+/).length : 0;
+    const characters = text.length;
+    const readTime = Math.ceil(words / 200);
+    return { words, characters, readTime };
+  }, [editor?.state.doc]);
+
   return (
     <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
       <Toolbar
@@ -154,6 +164,15 @@ export default function RichTextEditor({
         extra={toolbarExtra}
       />
       <EditorContent editor={editor} />
+      {editor && (
+        <div className="flex items-center justify-between border-t border-slate-100 bg-slate-50/50 px-4 py-2.5 text-[10px] font-bold uppercase tracking-wider text-slate-400 select-none">
+          <div className="flex gap-4">
+            <span>Words: <strong className="text-slate-600">{stats.words}</strong></span>
+            <span>Characters: <strong className="text-slate-600">{stats.characters}</strong></span>
+          </div>
+          <span>Est. Reading Time: <strong className="text-slate-600">{stats.readTime} min</strong></span>
+        </div>
+      )}
       {showUncertainPanel && (
         <div className="border-t border-slate-200 p-4">
           <UncertainWordPanel

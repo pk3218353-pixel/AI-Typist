@@ -112,6 +112,76 @@ export default function Toolbar({
 
       <div className="mx-1.5 h-5 w-px bg-slate-200" />
 
+      {/* Headings */}
+      <button
+        type="button"
+        className={`flex h-8 w-8 items-center justify-center rounded-lg text-xs font-black transition-colors ${
+          editor.isActive('heading', { level: 1 })
+            ? 'bg-slate-200 text-slate-800'
+            : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+        }`}
+        onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
+        title="Heading 1"
+      >
+        H1
+      </button>
+      <button
+        type="button"
+        className={`flex h-8 w-8 items-center justify-center rounded-lg text-xs font-black transition-colors ${
+          editor.isActive('heading', { level: 2 })
+            ? 'bg-slate-200 text-slate-800'
+            : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+        }`}
+        onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
+        title="Heading 2"
+      >
+        H2
+      </button>
+
+      <div className="mx-1.5 h-5 w-px bg-slate-200" />
+
+      {/* Lists */}
+      <button
+        type="button"
+        className={`flex h-8 w-8 items-center justify-center rounded-lg transition-colors ${
+          editor.isActive('bulletList')
+            ? 'bg-slate-200 text-slate-800'
+            : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+        }`}
+        onClick={() => editor.chain().focus().toggleBulletList().run()}
+        title="Bullet List"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4">
+          <line x1="8" y1="6" x2="21" y2="6"></line>
+          <line x1="8" y1="12" x2="21" y2="12"></line>
+          <line x1="8" y1="18" x2="21" y2="18"></line>
+          <line x1="3" y1="6" x2="3.01" y2="6"></line>
+          <line x1="3" y1="12" x2="3.01" y2="12"></line>
+          <line x1="3" y1="18" x2="3.01" y2="18"></line>
+        </svg>
+      </button>
+      <button
+        type="button"
+        className={`flex h-8 w-8 items-center justify-center rounded-lg transition-colors ${
+          editor.isActive('orderedList')
+            ? 'bg-slate-200 text-slate-800'
+            : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+        }`}
+        onClick={() => editor.chain().focus().toggleOrderedList().run()}
+        title="Numbered List"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4">
+          <line x1="10" y1="6" x2="21" y2="6"></line>
+          <line x1="10" y1="12" x2="21" y2="12"></line>
+          <line x1="10" y1="18" x2="21" y2="18"></line>
+          <path d="M4 6h1v4"></path>
+          <path d="M4 10h2"></path>
+          <path d="M6 18H4c0-1 2-2 2-3s-1-1.5-2-1"></path>
+        </svg>
+      </button>
+
+      <div className="mx-1.5 h-5 w-px bg-slate-200" />
+
       <button
         type="button"
         className={`flex h-8 w-8 items-center justify-center rounded-lg text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition-colors`}
