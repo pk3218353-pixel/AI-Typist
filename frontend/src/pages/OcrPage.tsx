@@ -1,7 +1,5 @@
-/**
- * OCR page — upload image, review uncertain words, export .docx.
- */
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useRef, useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import type { Editor } from '@tiptap/react';
 
 import OcrUpload from '../components/OcrUpload';
@@ -9,6 +7,7 @@ import RichTextEditor from '../components/RichTextEditor/RichTextEditor';
 import { extractOcr, exportDocx, downloadBlob } from '../api/client';
 import { ocrWordsToTipTapDoc } from '../utils/ocrToEditor';
 import { editorToDocxPayload } from '../utils/editorExport';
+import { getDocument, saveDocument } from '../utils/storage';
 
 export default function OcrPage() {
   const [loading, setLoading] = useState(false);
@@ -20,7 +19,24 @@ export default function OcrPage() {
   const [ocrMeta, setOcrMeta] = useState<{ provider: string; threshold: number } | null>(null);
   const [exporting, setExporting] = useState(false);
   const [imageUrl, setImageUrl] = useState<string | null>(null);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [documentTitle, setDocumentTitle] = useState('Untitled OCR Document');
   const fontFamilyRef = useRef('mangal');
+
+  const docId = searchParams.get('id');
+
+  // Load existing document if id parameter is set
+  useEffect(() => {
+    if (docId) {
+      const doc = getDocument(docId);
+      if (doc && doc.type === 'ocr') {
+        setEditorContent(doc.content);
+        setDocumentTitle(doc.title);
+        fontFamilyRef.current = doc.fontFamily;
+        setContentKey((k) => k + 1);
+      }
+    }
+  }, [docId]);
 
   const handleUpload = useCallback(
     async (file: File) => {
@@ -30,18 +46,37 @@ export default function OcrPage() {
       try {
         const result = await extractOcr(file, languages, preprocess);
         const doc = ocrWordsToTipTapDoc(result.words);
+
+        // Generate a new ID and save the document
+        const newId = typeof crypto !== 'undefined' && crypto.randomUUID
+          ? crypto.randomUUID()
+          : Math.random().toString(36).substring(2, 9);
+        const newTitle = `Scan - ${new Date().toLocaleDateString()}`;
+
+        const newDoc = {
+          id: newId,
+          title: newTitle,
+          content: doc as unknown as Record<string, unknown>,
+          fontFamily: fontFamilyRef.current,
+          updatedAt: new Date().toISOString(),
+          type: 'ocr' as const,
+        };
+        saveDocument(newDoc);
+
+        setDocumentTitle(newTitle);
         setEditorContent(doc as unknown as Record<string, unknown>);
         setContentKey((k) => k + 1);
         setOcrMeta({ provider: result.provider, threshold: result.threshold });
+        setSearchParams({ id: newId });
       } catch (err) {
         const message = err instanceof Error ? err.message : 'OCR failed';
         setError(message);
-        setImageUrl(null); // Clear image url if processing failed
+        setImageUrl(null);
       } finally {
         setLoading(false);
       }
     },
-    [languages, preprocess],
+    [languages, preprocess, setSearchParams],
   );
 
   const handleReset = useCallback(() => {
@@ -49,7 +84,40 @@ export default function OcrPage() {
     setImageUrl(null);
     setOcrMeta(null);
     setError(null);
-  }, []);
+    setSearchParams({});
+  }, [setSearchParams]);
+
+  const handleEditorChange = useCallback(
+    (content: Record<string, unknown>) => {
+      if (docId) {
+        const doc = getDocument(docId);
+        if (doc) {
+          const updated = {
+            ...doc,
+            content,
+            updatedAt: new Date().toISOString(),
+          };
+          saveDocument(updated);
+        }
+      }
+    },
+    [docId],
+  );
+
+  const handleTitleChange = (newTitle: string) => {
+    setDocumentTitle(newTitle);
+    if (docId) {
+      const doc = getDocument(docId);
+      if (doc) {
+        const updated = {
+          ...doc,
+          title: newTitle,
+          updatedAt: new Date().toISOString(),
+        };
+        saveDocument(updated);
+      }
+    }
+  };
 
   const handleExport = useCallback(async (editor: Editor) => {
     setExporting(true);
@@ -127,13 +195,38 @@ export default function OcrPage() {
           </div>
 
           {/* Right Side: TipTap Editor Workspace */}
-          <div className="lg:col-span-7">
+          <div className="lg:col-span-7 space-y-4">
+            <div className="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm">
+              <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1">
+                Document Title
+              </label>
+              <input
+                type="text"
+                value={documentTitle}
+                onChange={(e) => handleTitleChange(e.target.value)}
+                className="w-full text-lg font-bold text-slate-800 focus:outline-none border-b border-transparent focus:border-slate-200 pb-1"
+                placeholder="Name your document..."
+              />
+            </div>
+
             <RichTextEditor
               key={contentKey}
               initialContent={editorContent}
+              onChange={handleEditorChange}
               fontFamily={fontFamilyRef.current}
               onFontFamilyChange={(f) => {
                 fontFamilyRef.current = f;
+                if (docId) {
+                  const doc = getDocument(docId);
+                  if (doc) {
+                    const updated = {
+                      ...doc,
+                      fontFamily: f,
+                      updatedAt: new Date().toISOString(),
+                    };
+                    saveDocument(updated);
+                  }
+                }
               }}
               onExport={handleExport}
               exportLabel={exporting ? 'Exporting…' : 'Download .docx'}

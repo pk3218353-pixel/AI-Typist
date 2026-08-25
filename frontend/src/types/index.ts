@@ -61,3 +61,13 @@ export const FONT_OPTIONS = [
   { value: 'lohit-devanagari', label: 'Lohit Devanagari', css: '"Lohit Devanagari", sans-serif' },
   { value: 'arial', label: 'Arial', css: 'Arial, sans-serif' },
 ];
+
+export interface LocalDocument {
+  id: string;
+  title: string;
+  content: Record<string, unknown>;
+  fontFamily: string;
+  updatedAt: string;
+  type: 'ocr' | 'voice';
+}
+

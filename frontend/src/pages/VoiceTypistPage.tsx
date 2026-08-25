@@ -1,7 +1,5 @@
-/**
- * Voice typist page — live Web Speech API transcription into TipTap editor.
- */
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useRef, useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import type { Editor } from '@tiptap/react';
 
 import RichTextEditor from '../components/RichTextEditor/RichTextEditor';
@@ -9,6 +7,7 @@ import VoiceControls from '../components/VoiceControls';
 import { useWebSpeech } from '../hooks/useWebSpeech';
 import { exportDocx, downloadBlob } from '../api/client';
 import { editorToDocxPayload } from '../utils/editorExport';
+import { getDocument, saveDocument } from '../utils/storage';
 import type { SpeechLang } from '../types';
 
 export default function VoiceTypistPage() {
@@ -18,7 +17,26 @@ export default function VoiceTypistPage() {
   const [speechError, setSpeechError] = useState<string | null>(null);
   const [exporting, setExporting] = useState(false);
   const [exportError, setExportError] = useState<string | null>(null);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [documentTitle, setDocumentTitle] = useState('Untitled Voice Document');
+  const [initialContent, setInitialContent] = useState<Record<string, unknown> | undefined>();
+  const [contentKey, setContentKey] = useState(0);
   const fontFamilyRef = useRef('mangal');
+
+  const docId = searchParams.get('id');
+
+  // Load existing document if id parameter is set
+  useEffect(() => {
+    if (docId) {
+      const doc = getDocument(docId);
+      if (doc && doc.type === 'voice') {
+        setInitialContent(doc.content);
+        setDocumentTitle(doc.title);
+        fontFamilyRef.current = doc.fontFamily;
+        setContentKey((k) => k + 1);
+      }
+    }
+  }, [docId]);
 
   const insertAtCursor = useCallback((text: string) => {
     const editor = editorRef.current;
@@ -40,6 +58,65 @@ export default function VoiceTypistPage() {
     start(language);
   }, [language, start]);
 
+  const handleReset = useCallback(() => {
+    setInitialContent(undefined);
+    setDocumentTitle('Untitled Voice Document');
+    setSearchParams({});
+    setContentKey((k) => k + 1);
+  }, [setSearchParams]);
+
+  const handleEditorChange = useCallback(
+    (content: Record<string, unknown>) => {
+      let currentId = docId;
+      if (!currentId) {
+        // Auto-create document on first edit or speak
+        currentId = typeof crypto !== 'undefined' && crypto.randomUUID
+          ? crypto.randomUUID()
+          : Math.random().toString(36).substring(2, 9);
+        const newTitle = `Dictation - ${new Date().toLocaleDateString()}`;
+
+        const newDoc = {
+          id: currentId,
+          title: newTitle,
+          content,
+          fontFamily: fontFamilyRef.current,
+          updatedAt: new Date().toISOString(),
+          type: 'voice' as const,
+        };
+        saveDocument(newDoc);
+        setDocumentTitle(newTitle);
+        setSearchParams({ id: currentId });
+      } else {
+        // Update existing document
+        const doc = getDocument(currentId);
+        if (doc) {
+          const updated = {
+            ...doc,
+            content,
+            updatedAt: new Date().toISOString(),
+          };
+          saveDocument(updated);
+        }
+      }
+    },
+    [docId, setSearchParams],
+  );
+
+  const handleTitleChange = (newTitle: string) => {
+    setDocumentTitle(newTitle);
+    if (docId) {
+      const doc = getDocument(docId);
+      if (doc) {
+        const updated = {
+          ...doc,
+          title: newTitle,
+          updatedAt: new Date().toISOString(),
+        };
+        saveDocument(updated);
+      }
+    }
+  };
+
   const handleExport = useCallback(async (editor: Editor) => {
     setExporting(true);
     setExportError(null);
@@ -56,11 +133,22 @@ export default function VoiceTypistPage() {
 
   return (
     <div className="space-y-8">
-      <div className="border-b border-slate-100 pb-4">
-        <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">Voice Typist</h1>
-        <p className="text-sm text-slate-500 font-semibold mt-1">
-          Dictate documents live with real-time speech transcription in Hindi, English, and regional languages.
-        </p>
+      <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-100 pb-4">
+        <div>
+          <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">Voice Typist</h1>
+          <p className="text-sm text-slate-500 font-semibold mt-1">
+            Dictate documents live with real-time speech transcription in Hindi, English, and regional languages.
+          </p>
+        </div>
+        {docId && (
+          <button
+            type="button"
+            onClick={handleReset}
+            className="rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-xs font-bold uppercase tracking-wider text-slate-600 hover:border-red-200 hover:text-red-600 hover:bg-red-50/30 transition-all"
+          >
+            Start New Dictation
+          </button>
+        )}
       </div>
 
       <VoiceControls
@@ -80,13 +168,41 @@ export default function VoiceTypistPage() {
         </div>
       )}
 
-      <div className="max-w-4xl mx-auto">
+      <div className="max-w-4xl mx-auto space-y-4">
+        <div className="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm">
+          <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1">
+            Document Title
+          </label>
+          <input
+            type="text"
+            value={documentTitle}
+            onChange={(e) => handleTitleChange(e.target.value)}
+            className="w-full text-lg font-bold text-slate-800 focus:outline-none border-b border-transparent focus:border-slate-200 pb-1"
+            placeholder="Name your document..."
+          />
+        </div>
+
         <RichTextEditor
+          key={contentKey}
+          initialContent={initialContent}
+          onChange={handleEditorChange}
           onEditorReady={(ed) => {
             editorRef.current = ed;
           }}
+          fontFamily={fontFamilyRef.current}
           onFontFamilyChange={(f) => {
             fontFamilyRef.current = f;
+            if (docId) {
+              const doc = getDocument(docId);
+              if (doc) {
+                const updated = {
+                  ...doc,
+                  fontFamily: f,
+                  updatedAt: new Date().toISOString(),
+                };
+                saveDocument(updated);
+              }
+            }
           }}
           onExport={handleExport}
           exportLabel={exporting ? 'Exporting…' : 'Download .docx'}

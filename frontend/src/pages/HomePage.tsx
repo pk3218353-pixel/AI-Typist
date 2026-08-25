@@ -1,9 +1,34 @@
-/**
- * Landing page with feature overview and navigation.
- */
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { listDocuments, deleteDocument, saveDocument } from '../utils/storage';
+import type { LocalDocument } from '../types';
 
 export default function HomePage() {
+  const [documents, setDocuments] = useState<LocalDocument[]>([]);
+
+  useEffect(() => {
+    setDocuments(listDocuments());
+  }, []);
+
+  const handleRename = (doc: LocalDocument) => {
+    const newTitle = prompt('Rename document:', doc.title);
+    if (newTitle && newTitle.trim() && newTitle.trim() !== doc.title) {
+      const updated = {
+        ...doc,
+        title: newTitle.trim(),
+        updatedAt: new Date().toISOString(),
+      };
+      saveDocument(updated);
+      setDocuments(listDocuments());
+    }
+  };
+
+  const handleDelete = (id: string, title: string) => {
+    if (confirm(`Are you sure you want to delete "${title}"?`)) {
+      deleteDocument(id);
+      setDocuments(listDocuments());
+    }
+  };
   return (
     <div className="space-y-16 py-6">
       {/* Hero Section */}
@@ -69,6 +94,75 @@ export default function HomePage() {
           </div>
         </Link>
       </div>
+
+      {/* Saved Documents Section */}
+      {documents.length > 0 && (
+        <section className="max-w-5xl mx-auto space-y-6">
+          <div className="border-b border-slate-100 pb-3 flex items-center justify-between">
+            <h2 className="text-xl font-extrabold text-slate-900 tracking-tight">My Saved Documents</h2>
+            <span className="rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-bold text-slate-600">
+              {documents.length} item{documents.length !== 1 && 's'}
+            </span>
+          </div>
+
+          <div className="grid gap-4 sm:grid-cols-2">
+            {documents.map((doc) => (
+              <div
+                key={doc.id}
+                className="group relative flex flex-col justify-between rounded-2xl border border-slate-200 bg-white p-5 shadow-sm hover:shadow-md transition duration-200 space-y-4"
+              >
+                <div>
+                  <div className="flex items-center justify-between">
+                    <span
+                      className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider ${
+                        doc.type === 'ocr'
+                          ? 'bg-indigo-50 text-indigo-700'
+                          : 'bg-violet-50 text-violet-700'
+                      }`}
+                    >
+                      {doc.type === 'ocr' ? 'OCR' : 'Voice'}
+                    </span>
+                    <span className="text-[10px] text-slate-400 font-semibold">
+                      {new Date(doc.updatedAt).toLocaleDateString(undefined, {
+                        month: 'short',
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                      })}
+                    </span>
+                  </div>
+                  <h3 className="mt-3 text-base font-bold text-slate-800 line-clamp-1 group-hover:text-indigo-600 transition">
+                    {doc.title}
+                  </h3>
+                </div>
+
+                <div className="flex items-center justify-end gap-2 border-t border-slate-100 pt-3">
+                  <button
+                    type="button"
+                    onClick={() => handleRename(doc)}
+                    className="rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-xs font-bold text-slate-600 hover:border-slate-300 hover:text-slate-700 hover:bg-slate-50 transition"
+                  >
+                    Rename
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleDelete(doc.id, doc.title)}
+                    className="rounded-xl border border-red-100 bg-white px-3 py-1.5 text-xs font-bold text-red-500 hover:border-red-200 hover:bg-red-50/50 transition"
+                  >
+                    Delete
+                  </button>
+                  <Link
+                    to={`/${doc.type}?id=${doc.id}`}
+                    className="rounded-xl bg-indigo-600 px-3.5 py-1.5 text-xs font-bold text-white hover:bg-indigo-700 transition"
+                  >
+                    Open
+                  </Link>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* Interactive Mockup Preview */}
       <div className="max-w-5xl mx-auto overflow-hidden rounded-3xl border border-slate-200 bg-white p-6 shadow-md shadow-slate-100 flex flex-col lg:flex-row gap-8 items-center">

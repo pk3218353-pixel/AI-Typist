@@ -25,6 +25,7 @@ export interface RichTextEditorProps {
   exportLabel?: string;
   toolbarExtra?: React.ReactNode;
   showUncertainPanel?: boolean;
+  onChange?: (content: Record<string, unknown>) => void;
 }
 
 /**
@@ -59,6 +60,7 @@ export default function RichTextEditor({
   exportLabel,
   toolbarExtra,
   showUncertainPanel = true,
+  onChange,
 }: RichTextEditorProps) {
   const [fontFamily, setFontFamily] = useState(initialFont);
   const [uncertainItems, setUncertainItems] = useState<UncertainItem[]>([]);
@@ -88,6 +90,7 @@ export default function RichTextEditor({
     },
     onUpdate: ({ editor: ed }) => {
       setUncertainItems(collectUncertainItems(ed));
+      onChange?.(ed.getJSON());
     },
   });
 
