@@ -26,10 +26,17 @@ export default function Toolbar({
 }: ToolbarProps) {
   if (!editor) return null;
 
+  const getBtnClass = (active: boolean) =>
+    `flex h-8 w-8 items-center justify-center rounded-lg transition-colors ${
+      active
+        ? 'bg-slate-200 text-slate-800 dark:bg-slate-800 dark:text-slate-100'
+        : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-200'
+    }`;
+
   return (
-    <div className="flex flex-wrap items-center gap-1.5 border-b border-slate-200/80 bg-slate-50/50 px-4 py-2.5">
+    <div className="flex flex-wrap items-center gap-1.5 border-b border-slate-200/80 bg-slate-50/50 px-4 py-2.5 dark:border-slate-800 dark:bg-slate-950/20">
       <select
-        className="rounded-xl border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-bold text-slate-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+        className="rounded-xl border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-bold text-slate-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-800 dark:bg-slate-800 dark:text-slate-200"
         value={fontFamily}
         onChange={(e) => {
           const next = e.target.value;
@@ -47,7 +54,7 @@ export default function Toolbar({
       </select>
 
       <select
-        className="rounded-xl border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-bold text-slate-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+        className="rounded-xl border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-bold text-slate-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-800 dark:bg-slate-800 dark:text-slate-200"
         defaultValue="14"
         onChange={(e) => {
           editor.chain().focus().setFontSize(`${e.target.value}px`).run();
@@ -61,15 +68,11 @@ export default function Toolbar({
         ))}
       </select>
 
-      <div className="mx-1.5 h-5 w-px bg-slate-200" />
+      <div className="mx-1.5 h-5 w-px bg-slate-200 dark:bg-slate-800" />
 
       <button
         type="button"
-        className={`flex h-8 w-8 items-center justify-center rounded-lg transition-colors ${
-          editor.isActive('bold')
-            ? 'bg-slate-200 text-slate-800'
-            : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
-        }`}
+        className={getBtnClass(editor.isActive('bold'))}
         onClick={() => editor.chain().focus().toggleBold().run()}
         title="Bold"
       >
@@ -80,11 +83,7 @@ export default function Toolbar({
       </button>
       <button
         type="button"
-        className={`flex h-8 w-8 items-center justify-center rounded-lg transition-colors ${
-          editor.isActive('italic')
-            ? 'bg-slate-200 text-slate-800'
-            : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
-        }`}
+        className={getBtnClass(editor.isActive('italic'))}
         onClick={() => editor.chain().focus().toggleItalic().run()}
         title="Italic"
       >
@@ -96,11 +95,7 @@ export default function Toolbar({
       </button>
       <button
         type="button"
-        className={`flex h-8 w-8 items-center justify-center rounded-lg transition-colors ${
-          editor.isActive('underline')
-            ? 'bg-slate-200 text-slate-800'
-            : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
-        }`}
+        className={getBtnClass(editor.isActive('underline'))}
         onClick={() => editor.chain().focus().toggleUnderline().run()}
         title="Underline"
       >
@@ -110,16 +105,12 @@ export default function Toolbar({
         </svg>
       </button>
 
-      <div className="mx-1.5 h-5 w-px bg-slate-200" />
+      <div className="mx-1.5 h-5 w-px bg-slate-200 dark:bg-slate-800" />
 
       {/* Headings */}
       <button
         type="button"
-        className={`flex h-8 w-8 items-center justify-center rounded-lg text-xs font-black transition-colors ${
-          editor.isActive('heading', { level: 1 })
-            ? 'bg-slate-200 text-slate-800'
-            : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
-        }`}
+        className={`text-xs font-black ${getBtnClass(editor.isActive('heading', { level: 1 }))}`}
         onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
         title="Heading 1"
       >
@@ -127,27 +118,19 @@ export default function Toolbar({
       </button>
       <button
         type="button"
-        className={`flex h-8 w-8 items-center justify-center rounded-lg text-xs font-black transition-colors ${
-          editor.isActive('heading', { level: 2 })
-            ? 'bg-slate-200 text-slate-800'
-            : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
-        }`}
+        className={`text-xs font-black ${getBtnClass(editor.isActive('heading', { level: 2 }))}`}
         onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
         title="Heading 2"
       >
         H2
       </button>
 
-      <div className="mx-1.5 h-5 w-px bg-slate-200" />
+      <div className="mx-1.5 h-5 w-px bg-slate-200 dark:bg-slate-800" />
 
       {/* Lists */}
       <button
         type="button"
-        className={`flex h-8 w-8 items-center justify-center rounded-lg transition-colors ${
-          editor.isActive('bulletList')
-            ? 'bg-slate-200 text-slate-800'
-            : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
-        }`}
+        className={getBtnClass(editor.isActive('bulletList'))}
         onClick={() => editor.chain().focus().toggleBulletList().run()}
         title="Bullet List"
       >
@@ -162,11 +145,7 @@ export default function Toolbar({
       </button>
       <button
         type="button"
-        className={`flex h-8 w-8 items-center justify-center rounded-lg transition-colors ${
-          editor.isActive('orderedList')
-            ? 'bg-slate-200 text-slate-800'
-            : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
-        }`}
+        className={getBtnClass(editor.isActive('orderedList'))}
         onClick={() => editor.chain().focus().toggleOrderedList().run()}
         title="Numbered List"
       >
@@ -180,11 +159,11 @@ export default function Toolbar({
         </svg>
       </button>
 
-      <div className="mx-1.5 h-5 w-px bg-slate-200" />
+      <div className="mx-1.5 h-5 w-px bg-slate-200 dark:bg-slate-800" />
 
       <button
         type="button"
-        className={`flex h-8 w-8 items-center justify-center rounded-lg text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition-colors`}
+        className={getBtnClass(false)}
         onClick={() => editor.chain().focus().setTextAlign('left').run()}
         title="Align Left"
       >
@@ -197,7 +176,7 @@ export default function Toolbar({
       </button>
       <button
         type="button"
-        className={`flex h-8 w-8 items-center justify-center rounded-lg text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition-colors`}
+        className={getBtnClass(false)}
         onClick={() => editor.chain().focus().setTextAlign('center').run()}
         title="Align Center"
       >
@@ -210,7 +189,7 @@ export default function Toolbar({
       </button>
       <button
         type="button"
-        className={`flex h-8 w-8 items-center justify-center rounded-lg text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition-colors`}
+        className={getBtnClass(false)}
         onClick={() => editor.chain().focus().setTextAlign('right').run()}
         title="Align Right"
       >
@@ -224,7 +203,7 @@ export default function Toolbar({
 
       {extra && (
         <>
-          <div className="mx-1.5 h-5 w-px bg-slate-200" />
+          <div className="mx-1.5 h-5 w-px bg-slate-200 dark:bg-slate-800" />
           {extra}
         </>
       )}
@@ -234,7 +213,7 @@ export default function Toolbar({
           <div className="flex-1" />
           <button
             type="button"
-            className="rounded-xl bg-indigo-600 px-4 py-2 text-xs font-bold uppercase tracking-wider text-white hover:bg-indigo-700 shadow-md shadow-indigo-100 transition-all hover:-translate-y-0.5"
+            className="rounded-xl bg-indigo-600 px-4 py-2 text-xs font-bold uppercase tracking-wider text-white hover:bg-indigo-700 shadow-md shadow-indigo-100 dark:shadow-indigo-950/50 transition-all hover:-translate-y-0.5"
             onClick={onExport}
           >
             {exportLabel}

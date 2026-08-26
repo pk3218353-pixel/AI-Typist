@@ -7,7 +7,10 @@
 @layer base {
   body {
     font-family: 'Outfit', 'Plus Jakarta Sans', sans-serif;
-    @apply text-slate-800 antialiased bg-slate-50/50;
+    @apply text-slate-800 antialiased bg-slate-50/50 transition-colors duration-300;
+  }
+  html.dark body {
+    @apply text-slate-100 bg-slate-950;
   }
 }
 
@@ -23,8 +26,14 @@
   background: rgba(148, 163, 184, 0.3);
   border-radius: 4px;
 }
+.dark ::-webkit-scrollbar-thumb {
+  background: rgba(71, 85, 105, 0.4);
+}
 ::-webkit-scrollbar-thumb:hover {
   background: rgba(148, 163, 184, 0.5);
+}
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: rgba(71, 85, 105, 0.6);
 }
 
 /* TipTap editor base styles */

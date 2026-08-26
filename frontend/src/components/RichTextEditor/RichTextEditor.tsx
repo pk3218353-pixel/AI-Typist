@@ -26,6 +26,8 @@ export interface RichTextEditorProps {
   toolbarExtra?: React.ReactNode;
   showUncertainPanel?: boolean;
   onChange?: (content: Record<string, unknown>) => void;
+  title?: string;
+  onTitleChange?: (value: string) => void;
 }
 
 /**
@@ -61,6 +63,8 @@ export default function RichTextEditor({
   toolbarExtra,
   showUncertainPanel = true,
   onChange,
+  title = 'Untitled Document',
+  onTitleChange,
 }: RichTextEditorProps) {
   const [fontFamily, setFontFamily] = useState(initialFont);
   const [uncertainItems, setUncertainItems] = useState<UncertainItem[]>([]);
@@ -151,7 +155,7 @@ export default function RichTextEditor({
   }, [editor?.state.doc]);
 
   return (
-    <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+    <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900 transition-colors duration-300">
       <Toolbar
         editor={editor}
         fontFamily={fontFamily}
@@ -163,18 +167,37 @@ export default function RichTextEditor({
         exportLabel={exportLabel}
         extra={toolbarExtra}
       />
-      <EditorContent editor={editor} />
+      
+      {onTitleChange !== undefined && (
+        <div className="px-6 pt-5 pb-3 border-b border-slate-100 dark:border-slate-800/80">
+          <label className="block text-[9px] font-extrabold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-1 select-none">
+            Document Title
+          </label>
+          <input
+            type="text"
+            value={title}
+            onChange={(e) => onTitleChange(e.target.value)}
+            className="w-full bg-transparent text-xl md:text-2xl font-black text-slate-800 dark:text-slate-100 placeholder-slate-300 dark:placeholder-slate-700 focus:outline-none"
+            placeholder="Name your document..."
+          />
+        </div>
+      )}
+
+      <div className="dark:text-slate-100">
+        <EditorContent editor={editor} />
+      </div>
+
       {editor && (
-        <div className="flex items-center justify-between border-t border-slate-100 bg-slate-50/50 px-4 py-2.5 text-[10px] font-bold uppercase tracking-wider text-slate-400 select-none">
+        <div className="flex items-center justify-between border-t border-slate-100 bg-slate-50/50 px-5 py-3 text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:border-slate-800/80 dark:bg-slate-950/20 select-none">
           <div className="flex gap-4">
-            <span>Words: <strong className="text-slate-600">{stats.words}</strong></span>
-            <span>Characters: <strong className="text-slate-600">{stats.characters}</strong></span>
+            <span>Words: <strong className="text-slate-600 dark:text-slate-400">{stats.words}</strong></span>
+            <span>Characters: <strong className="text-slate-600 dark:text-slate-400">{stats.characters}</strong></span>
           </div>
-          <span>Est. Reading Time: <strong className="text-slate-600">{stats.readTime} min</strong></span>
+          <span>Est. Reading Time: <strong className="text-slate-600 dark:text-slate-400">{stats.readTime} min</strong></span>
         </div>
       )}
       {showUncertainPanel && (
-        <div className="border-t border-slate-200 p-4">
+        <div className="border-t border-slate-200 dark:border-slate-800/80 p-4 bg-slate-50/20 dark:bg-slate-950/10">
           <UncertainWordPanel
             items={uncertainItems}
             editor={editor}

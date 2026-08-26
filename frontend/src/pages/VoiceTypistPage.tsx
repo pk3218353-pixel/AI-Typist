@@ -132,11 +132,11 @@ export default function VoiceTypistPage() {
   }, []);
 
   return (
-    <div className="space-y-8">
-      <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-100 pb-4">
+    <div className="max-w-4xl mx-auto space-y-8">
+      <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-100 dark:border-slate-800/80 pb-4">
         <div>
-          <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">Voice Typist</h1>
-          <p className="text-sm text-slate-500 font-semibold mt-1">
+          <h1 className="text-3xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight">Voice Typist</h1>
+          <p className="text-sm text-slate-500 dark:text-slate-400 font-semibold mt-1">
             Dictate documents live with real-time speech transcription in Hindi, English, and regional languages.
           </p>
         </div>
@@ -144,7 +144,7 @@ export default function VoiceTypistPage() {
           <button
             type="button"
             onClick={handleReset}
-            className="rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-xs font-bold uppercase tracking-wider text-slate-600 hover:border-red-200 hover:text-red-600 hover:bg-red-50/30 transition-all"
+            className="rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-xs font-bold uppercase tracking-wider text-slate-600 dark:bg-slate-900 dark:border-slate-800 dark:text-slate-350 hover:border-red-200 hover:text-red-600 hover:bg-red-50/30 dark:hover:border-red-900/60 dark:hover:text-red-400 dark:hover:bg-red-950/20 transition-all shadow-sm"
           >
             Start New Dictation
           </button>
@@ -163,29 +163,18 @@ export default function VoiceTypistPage() {
       />
 
       {exportError && (
-        <div className="rounded-2xl bg-red-50 p-4 border border-red-100 text-sm font-bold text-red-700 max-w-xl mx-auto shadow-sm">
+        <div className="rounded-2xl bg-red-50 dark:bg-red-950/20 p-4 border border-red-100 dark:border-red-900/40 text-sm font-bold text-red-700 dark:text-red-400 max-w-xl mx-auto shadow-sm">
           ⚠️ {exportError}
         </div>
       )}
 
-      <div className="max-w-4xl mx-auto space-y-4">
-        <div className="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm">
-          <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1">
-            Document Title
-          </label>
-          <input
-            type="text"
-            value={documentTitle}
-            onChange={(e) => handleTitleChange(e.target.value)}
-            className="w-full text-lg font-bold text-slate-800 focus:outline-none border-b border-transparent focus:border-slate-200 pb-1"
-            placeholder="Name your document..."
-          />
-        </div>
-
+      <div>
         <RichTextEditor
           key={contentKey}
           initialContent={initialContent}
           onChange={handleEditorChange}
+          title={documentTitle}
+          onTitleChange={handleTitleChange}
           onEditorReady={(ed) => {
             editorRef.current = ed;
           }}

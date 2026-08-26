@@ -136,10 +136,10 @@ export default function OcrPage() {
 
   return (
     <div className="space-y-8">
-      <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-100 pb-4">
+      <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-100 dark:border-slate-800/80 pb-4">
         <div>
-          <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">Image to Document</h1>
-          <p className="text-sm text-slate-500 font-semibold mt-1">
+          <h1 className="text-3xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight">Image to Document</h1>
+          <p className="text-sm text-slate-500 dark:text-slate-400 font-semibold mt-1">
             Convert image text into an editable Word document with Hindi and regional font support.
           </p>
         </div>
@@ -147,7 +147,7 @@ export default function OcrPage() {
           <button
             type="button"
             onClick={handleReset}
-            className="rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-xs font-bold uppercase tracking-wider text-slate-600 hover:border-red-200 hover:text-red-600 hover:bg-red-50/30 transition-all"
+            className="rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-xs font-bold uppercase tracking-wider text-slate-600 dark:bg-slate-900 dark:border-slate-800 dark:text-slate-350 hover:border-red-200 hover:text-red-600 hover:bg-red-50/30 dark:hover:border-red-900/60 dark:hover:text-red-400 dark:hover:bg-red-950/20 transition-all shadow-sm"
           >
             Start New Scan
           </button>
@@ -167,16 +167,16 @@ export default function OcrPage() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
           {/* Left Side: Uploaded Image Preview */}
           <div className="lg:col-span-5 space-y-4 lg:sticky lg:top-24">
-            <div className="rounded-3xl border border-slate-200/80 bg-white p-4 shadow-sm overflow-hidden flex flex-col">
-              <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-                <span className="text-xs font-bold tracking-wide uppercase text-slate-700">Reference Document</span>
+            <div className="rounded-3xl border border-slate-200/80 bg-white p-4 shadow-sm overflow-hidden flex flex-col dark:bg-slate-900 dark:border-slate-800">
+              <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
+                <span className="text-xs font-bold tracking-wide uppercase text-slate-700 dark:text-slate-300">Reference Document</span>
                 {ocrMeta && (
-                  <span className="inline-flex items-center rounded-full bg-slate-100 px-2.5 py-0.5 text-[10px] font-bold text-slate-600 uppercase tracking-wider">
+                  <span className="inline-flex items-center rounded-full bg-slate-100 dark:bg-slate-800 px-2.5 py-0.5 text-[10px] font-bold text-slate-600 dark:text-slate-350 uppercase tracking-wider">
                     {ocrMeta.provider} OCR
                   </span>
                 )}
               </div>
-              <div className="relative flex justify-center items-center bg-slate-100/50 rounded-2xl overflow-hidden mt-3 max-h-[300px] md:max-h-[500px] border border-slate-100">
+              <div className="relative flex justify-center items-center bg-slate-100/50 dark:bg-slate-950/20 rounded-2xl overflow-hidden mt-3 max-h-[300px] md:max-h-[500px] border border-slate-100 dark:border-slate-800">
                 {imageUrl && (
                   <img
                     src={imageUrl}
@@ -187,7 +187,7 @@ export default function OcrPage() {
               </div>
             </div>
             {ocrMeta && (
-              <div className="rounded-2xl bg-slate-100/80 p-4 border border-slate-200/40 text-xs font-semibold text-slate-600 flex items-center justify-between">
+              <div className="rounded-2xl bg-slate-100/80 dark:bg-slate-900/60 p-4 border border-slate-200/40 dark:border-slate-800/40 text-xs font-semibold text-slate-600 dark:text-slate-400 flex items-center justify-between shadow-sm">
                 <span>Confidence Threshold: <strong>{(ocrMeta.threshold * 100).toFixed(0)}%</strong></span>
                 <span>Flagged low confidence words in orange</span>
               </div>
@@ -195,24 +195,13 @@ export default function OcrPage() {
           </div>
 
           {/* Right Side: TipTap Editor Workspace */}
-          <div className="lg:col-span-7 space-y-4">
-            <div className="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm">
-              <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1">
-                Document Title
-              </label>
-              <input
-                type="text"
-                value={documentTitle}
-                onChange={(e) => handleTitleChange(e.target.value)}
-                className="w-full text-lg font-bold text-slate-800 focus:outline-none border-b border-transparent focus:border-slate-200 pb-1"
-                placeholder="Name your document..."
-              />
-            </div>
-
+          <div className="lg:col-span-7">
             <RichTextEditor
               key={contentKey}
               initialContent={editorContent}
               onChange={handleEditorChange}
+              title={documentTitle}
+              onTitleChange={handleTitleChange}
               fontFamily={fontFamilyRef.current}
               onFontFamilyChange={(f) => {
                 fontFamilyRef.current = f;
@@ -237,7 +226,7 @@ export default function OcrPage() {
       )}
 
       {error && (
-        <div className="rounded-2xl bg-red-50 p-4 border border-red-100 text-sm font-bold text-red-700 max-w-xl mx-auto shadow-sm">
+        <div className="rounded-2xl bg-red-50 dark:bg-red-950/20 p-4 border border-red-100 dark:border-red-900/40 text-sm font-bold text-red-700 dark:text-red-400 max-w-xl mx-auto shadow-sm">
           ⚠️ {error}
         </div>
       )}
