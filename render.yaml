@@ -11,6 +11,8 @@ services:
       - key: OCR_PRIMARY_LANG
         value: "hin+eng"
       - key: CORS_ORIGINS
-        value: "http://localhost:5173"
+        value: "http://localhost:5173,http://localhost:3000,https://ai-typist-liard.vercel.app,https://ai-typist.vercel.app"
+      - key: ENABLE_EASYOCR_FALLBACK
+        value: "false"
       - key: PORT
         value: "8000"

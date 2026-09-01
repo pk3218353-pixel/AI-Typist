@@ -21,7 +21,7 @@ export async function extractOcr(
   const form = new FormData();
   form.append('file', file);
   form.append('languages', languages);
-  form.append('use_fallback', 'true');
+  form.append('use_fallback', 'false');
   form.append('preprocess', String(preprocess));
 
   const { data } = await api.post<OcrResponse>('/api/ocr/extract', form, {

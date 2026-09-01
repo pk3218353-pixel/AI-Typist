@@ -2,6 +2,7 @@ import { useCallback, useRef, useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import type { Editor } from '@tiptap/react';
 
+import axios from 'axios';
 import OcrUpload from '../components/OcrUpload';
 import RichTextEditor from '../components/RichTextEditor/RichTextEditor';
 import { extractOcr, exportDocx, downloadBlob } from '../api/client';
@@ -68,8 +69,19 @@ export default function OcrPage() {
         setContentKey((k) => k + 1);
         setOcrMeta({ provider: result.provider, threshold: result.threshold });
         setSearchParams({ id: newId });
-      } catch (err) {
-        const message = err instanceof Error ? err.message : 'OCR failed';
+      } catch (err: unknown) {
+        let message = 'OCR extraction failed';
+        if (axios.isAxiosError(err)) {
+          if (err.response?.data?.detail) {
+            message = String(err.response.data.detail);
+          } else if (err.code === 'ERR_NETWORK' || err.message.includes('Network Error')) {
+            message = 'Unable to reach backend server. If using the free cloud tier, the server may be waking up (cold start ~30s). Please try again in a few moments.';
+          } else {
+            message = err.message;
+          }
+        } else if (err instanceof Error) {
+          message = err.message;
+        }
         setError(message);
         setImageUrl(null);
       } finally {

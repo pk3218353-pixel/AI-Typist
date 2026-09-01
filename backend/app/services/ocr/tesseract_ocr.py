@@ -21,9 +21,25 @@ class TesseractOCR(OCRProvider):
             pytesseract.pytesseract.tesseract_cmd = settings.TESSERACT_CMD
 
     def extract(self, image_bytes: bytes, languages: list[str]) -> OcrResult:
-        lang = "+".join(languages) if languages else settings.OCR_PRIMARY_LANG
+        try:
+            available = pytesseract.get_languages()
+        except Exception:
+            available = []
+
+        if available and languages:
+            valid = [l for l in languages if l in available]
+            lang = "+".join(valid) if valid else "+".join([l for l in ["hin", "eng"] if l in available] or ["eng"])
+        elif languages:
+            lang = "+".join(languages)
+        else:
+            lang = settings.OCR_PRIMARY_LANG
+
         image = Image.open(io.BytesIO(image_bytes))
-        data = pytesseract.image_to_data(image, lang=lang, output_type=Output.DICT)
+        try:
+            data = pytesseract.image_to_data(image, lang=lang, output_type=Output.DICT)
+        except Exception:
+            # Fallback to default or eng if custom language fails
+            data = pytesseract.image_to_data(image, lang="eng", output_type=Output.DICT)
 
         words: list[OcrWord] = []
         lines: dict[int, list[str]] = {}

@@ -15,6 +15,7 @@ class Settings(BaseSettings):
     USE_GOOGLE_VISION: bool = False
     USE_GOOGLE_SPEECH: bool = False
     USE_WHISPER: bool = False
+    ENABLE_EASYOCR_FALLBACK: bool = False
 
     # OCR settings
     OCR_CONFIDENCE_THRESHOLD: float = 0.75
@@ -26,7 +27,7 @@ class Settings(BaseSettings):
     OPENAI_API_KEY: str | None = None
 
     # CORS — comma-separated string or JSON list in .env
-    CORS_ORIGINS: str = "http://localhost:5173"
+    CORS_ORIGINS: str = "http://localhost:5173,http://localhost:3000,https://ai-typist-liard.vercel.app,https://ai-typist.vercel.app"
 
     API_PREFIX: str = "/api"
 

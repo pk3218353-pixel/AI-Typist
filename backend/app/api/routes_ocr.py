@@ -17,13 +17,14 @@ router = APIRouter(prefix="/ocr", tags=["ocr"])
 async def extract_text(
     file: UploadFile = File(...),
     languages: str = Form("hin,eng"),
-    use_fallback: bool = Form(True),
+    use_fallback: bool = Form(False),
     preprocess: bool = Form(False),
 ):
     """
     Extract text from an uploaded document image.
 
-    Uses Tesseract (FREE) by default; EasyOCR (FREE) fallback when confidence is low;
+    Uses Tesseract (FREE) by default; EasyOCR (FREE) fallback when confidence is low
+    and ENABLE_EASYOCR_FALLBACK is enabled;
     Google Vision (PAID) when USE_GOOGLE_VISION=true.
     """
     if not file.content_type or not file.content_type.startswith("image/"):
@@ -36,29 +37,27 @@ async def extract_text(
     lang_list = [lang.strip() for lang in languages.split(",") if lang.strip()]
 
     provider = get_ocr_provider()
+    result = None
     try:
         result = provider.extract(image_bytes, lang_list)
     except Exception as e:
-        if not settings.USE_GOOGLE_VISION:
-            import logging
-            logging.warning(f"Primary OCR provider failed ({e}). Falling back to EasyOCR...")
-            result = get_fallback_provider().extract(image_bytes, lang_list)
-        else:
+        import logging
+        logging.warning(f"Primary OCR provider failed ({e})")
+        if settings.USE_GOOGLE_VISION:
             raise
 
-    avg_conf = sum(w.confidence for w in result.words) / max(len(result.words), 1)
-    if (
-        use_fallback
-        and not settings.USE_GOOGLE_VISION
-        and result.provider != "easyocr"
-        and avg_conf < settings.OCR_CONFIDENCE_THRESHOLD
-    ):
+    # Attempt fallback only if primary failed or produced 0 words, and fallback is enabled
+    if (result is None or len(result.words) == 0) and settings.ENABLE_EASYOCR_FALLBACK and use_fallback:
         try:
+            import logging
+            logging.info("Attempting EasyOCR fallback...")
             result = get_fallback_provider().extract(image_bytes, lang_list)
         except Exception as e:
             import logging
-            logging.error(f"EasyOCR fallback also failed: {e}")
-            raise
+            logging.error(f"EasyOCR fallback failed: {e}")
+
+    if result is None:
+        raise HTTPException(status_code=500, detail="OCR processing failed to extract text from image")
 
     threshold = settings.OCR_CONFIDENCE_THRESHOLD
     words_out = [
